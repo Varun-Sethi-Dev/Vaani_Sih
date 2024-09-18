@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">incoming-call-handler</string>
+    <string-array name="indian_languages">
+        <item>English</item>
+        <item>Hindi</item>
+        <item>Tamil</item>
+        <item>Telugu</item>
+        <item>Kannada</item>
+        <item>Malayalam</item>
+        <item>Marathi</item>
+        <item>Punjabi</item>
+        <item>Bengali</item>
+        <!-- Add more languages as needed -->
+    </string-array>
 </resources>

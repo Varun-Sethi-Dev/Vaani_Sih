@@ -17,7 +17,7 @@ class IncomingCallService : CallScreeningService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        incomingCallAlert.closeWindow()
+//        incomingCallAlert.closeWindow()
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -26,10 +26,14 @@ class IncomingCallService : CallScreeningService() {
             if (callDetails.callDirection == Call.Details.DIRECTION_INCOMING) {
                 val phoneNumber = callDetails.handle.schemeSpecificPart
                 phoneNumber?.let {
-                    incomingCallAlert.showWindow(this, it)
+                    incomingCallAlert.showWindow(
+                        this,
+                        it
+                    )
                 }
             }
             respondToCall(callDetails, CallResponse.Builder().build())
         }
     }
+
 }

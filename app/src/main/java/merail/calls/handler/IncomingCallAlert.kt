@@ -12,12 +12,24 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 class IncomingCallAlert {
 
     companion object {
-        private const val WINDOW_WIDTH_RATIO = 0.8f
+        private const val WINDOW_WIDTH_RATIO = 0.98f
     }
 
     private lateinit var windowManager: WindowManager
@@ -32,10 +44,7 @@ class IncomingCallAlert {
         // type
         windowType,
         // flags
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
         // format
         PixelFormat.TRANSLUCENT,
     ).apply {
@@ -57,7 +66,8 @@ class IncomingCallAlert {
     private val WindowManager.windowWidth: Int
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowMetrics = currentWindowMetrics
-            val insets = windowMetrics.getWindowInsets().getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+            val insets = windowMetrics.getWindowInsets()
+                .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
             (WINDOW_WIDTH_RATIO * (windowMetrics.bounds.width() - insets.left - insets.right)).toInt()
         } else {
             DisplayMetrics().apply {
@@ -72,16 +82,38 @@ class IncomingCallAlert {
         windowLayout = View.inflate(context, R.layout.window_call_info, null) as ViewGroup?
         windowLayout?.let {
             params.width = windowManager.windowWidth
-            val numberTextView = it.findViewById<TextView>(R.id.number)
-            numberTextView.text = phone
-            val cancelButton = it.findViewById<Button>(R.id.cancel)
-            cancelButton.setOnClickListener {
+
+
+            val btnStart: Button = it.findViewById(R.id.btnStart)
+            val btnClose: Button = it.findViewById(R.id.btnClose)
+            val conversationBox: LinearLayout = it.findViewById(R.id.conversationBox)
+            val conversationText: TextView = it.findViewById(R.id.conversationText)
+
+            btnStart.setOnClickListener {
+                if (conversationBox.visibility == View.GONE) {
+                    conversationBox.visibility = View.VISIBLE
+                    conversationText.text = "Translation starting...\n" +
+                            "Translation in progress... \n\n" +
+                            "Hi\n" +
+                            "Harry this side"
+                    btnStart.text = "Stop"
+                } else {
+                    conversationBox.visibility = View.GONE
+                    btnStart.text = "Start"
+
+                }
+            }
+            btnClose.setOnClickListener {
                 closeWindow()
             }
+
+
             windowManager.addView(it, params)
             setOnTouchListener()
         }
+
     }
+
 
     fun closeWindow() {
         if (windowLayout != null) {
@@ -98,6 +130,7 @@ class IncomingCallAlert {
                     x = event.rawX
                     y = event.rawY
                 }
+
                 MotionEvent.ACTION_MOVE -> updateWindowLayoutParams(event)
                 MotionEvent.ACTION_UP -> view.performClick()
                 else -> Unit
@@ -112,5 +145,20 @@ class IncomingCallAlert {
         windowManager.updateViewLayout(windowLayout, params)
         x = event.rawX
         y = event.rawY
+    }
+
+    @Composable
+    fun CallInfoWindow(phone: String, onCancel: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(text = "Phone number: $phone")
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = { onCancel() }) {
+                Text(text = "Cancel")
+            }
+        }
     }
 }

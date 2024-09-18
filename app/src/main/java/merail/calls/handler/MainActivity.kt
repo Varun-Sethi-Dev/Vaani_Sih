@@ -23,21 +23,24 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import merail.tools.permissions.SettingsSnackbar
+import merail.tools.permissions.role.RoleRequester
+import merail.tools.permissions.role.RoleState
 import merail.tools.permissions.runtime.RuntimePermissionRequester
 import merail.tools.permissions.runtime.RuntimePermissionState
 import merail.tools.permissions.special.SpecialPermissionRequester
-import merail.tools.permissions.role.RoleRequester
-import merail.tools.permissions.role.RoleState
 import merail.tools.permissions.special.SpecialPermissionState
 
 class MainActivity : ComponentActivity() {
@@ -190,6 +193,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun Content(
     areAllPermissionsGranted: Boolean,
@@ -200,6 +204,10 @@ private fun Content(
     rolePermissionClick: (() -> Unit)?,
     rolePermissionButtonVisible: Boolean,
 ) {
+    var isVisible by remember {
+        mutableStateOf(false)
+    }
+    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
